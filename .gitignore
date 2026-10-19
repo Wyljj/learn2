@@ -1,0 +1,9 @@
+data/
+.env
+.env.*
+!.env.example
+tmp/
+node_modules/
+*.log
+output/**/*.pdf
+output/**/*.png
