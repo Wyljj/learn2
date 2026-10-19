@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智学 AI · 完整学习系统</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #21262d;
+  --bg4: #2d333b;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #6e7681;
+  --accent: #58a6ff;
+  --accent2: #1f6feb;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --purple: #bc8cff;
+  --teal: #39d353;
+  --gold: #e3b341;
+  --glow: 0 0 20px rgba(88,166,255,0.15);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{
+  width:220px;min-width:220px;background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  transition:width 0.3s;z-index:100;
+}
+.sidebar-logo{
+  padding:20px 18px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,#1f6feb,#bc8cff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.logo-text{font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;letter-spacing:2px;}
+.logo-sub{font-size:9px;color:var(--text3);letter-spacing:1px;margin-top:1px;}
+
+.sidebar-nav{flex:1;padding:10px 10px;}
+.nav-section{margin-bottom:20px;}
+.nav-section-title{
+  font-size:10px;color:var(--text3);letter-spacing:1.5px;
+  text-transform:uppercase;padding:4px 8px 8px;font-weight:600;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:var(--radius-sm);
+  cursor:pointer;transition:all 0.2s;
+  font-size:13px;color:var(--text2);
+  position:relative;
+}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(88,166,255,0.12);color:var(--accent);}
+.nav-item.active::before{
+  content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;background:var(--accent);border-radius:2px;
+}
+.nav-icon{font-size:15px;width:18px;text-align:center;}
+.nav-badge{
+  margin-left:auto;background:var(--accent2);color:white;
+  font-size:10px;padding:1px 6px;border-radius:10px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+.sidebar-footer{
+  padding:14px;border-top:1px solid var(--border);
+}
+.user-card{
+  display:flex;align-items:center;gap:10px;
+  padding:8px;border-radius:var(--radius-sm);
+  cursor:pointer;
+}
+.user-card:hover{background:var(--bg3);}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,#1f6feb,#39d353);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:white;flex-shrink:0;
+}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-role{font-size:10px;color:var(--text3);}
+.user-logout{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:4px;margin-left:auto;}
+.user-logout:hover{color:var(--red);background:rgba(248,81,73,0.1);}
+
+/* Main content */
+.main{flex:1;overflow-y:auto;min-width:0;}
+
+/* ===== PAGES ===== */
+.page{display:none;padding:32px;min-height:100vh;animation:fadeIn 0.3s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.page-header{margin-bottom:28px;}
+.page-title{font-family:'Noto Serif SC',serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.page-sub{font-size:13px;color:var(--text2);}
+
+/* ===== AUTH ===== */
+#page-auth{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;background:var(--bg);padding:20px;
+}
+.auth-container{
+  width:100%;max-width:420px;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:40px;
+  box-shadow:var(--shadow);
+}
+.auth-logo{text-align:center;margin-bottom:28px;}
+.auth-logo .logo-icon{width:52px;height:52px;font-size:24px;margin:0 auto 12px;}
+.auth-logo h1{font-family:'Noto Serif SC',serif;font-size:22px;letter-spacing:3px;}
+.auth-logo p{font-size:12px;color:var(--text3);margin-top:4px;}
+.auth-tabs{display:flex;gap:0;margin-bottom:24px;background:var(--bg3);border-radius:8px;padding:3px;}
+.auth-tab{
+  flex:1;padding:8px;text-align:center;font-size:13px;
+  cursor:pointer;border-radius:6px;transition:all 0.2s;color:var(--text2);
+}
+.auth-tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500;}
+.form-input{
+  width:100%;padding:11px 14px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-size:14px;font-family:'Noto Sans SC',sans-serif;
+  outline:none;transition:border-color 0.2s;
+}
+.form-input:focus{border-color:var(--accent);}
+.form-select{
+  width:100%;padding:11px 14px;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-size:14px;font-family:'Noto Sans SC',sans-serif;
+  outline:none;-webkit-appearance:none;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 20px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;font-family:'Noto Sans SC',sans-serif;
+  cursor:pointer;border:none;transition:all 0.2s;letter-spacing:0.5px;
+}
+.btn-primary{background:var(--accent2);color:white;}
+.btn-primary:hover{background:#388bfd;transform:translateY(-1px);box-shadow:0 4px 16px rgba(31,111,235,0.35);}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+.btn-secondary:hover{background:var(--bg4);}
+.btn-danger{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3);}
+.btn-danger:hover{background:rgba(248,81,73,0.25);}
+.btn-success{background:rgba(63,185,80,0.15);color:var(--green);border:1px solid rgba(63,185,80,0.3);}
+.btn-success:hover{background:rgba(63,185,80,0.25);}
+.btn-full{width:100%;}
+.btn-sm{padding:6px 14px;font-size:12px;}
+.btn-lg{padding:14px 28px;font-size:15px;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;}
+
+/* ===== CARDS ===== */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  transition:border-color 0.2s;
+}
+.card:hover{border-color:var(--border2);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;}
+
+/* ===== GRID ===== */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+
+/* ===== STAT CARDS ===== */
+.stat-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--accent),var(--purple));}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),var(--teal));}
+.stat-card.orange::before{background:linear-gradient(90deg,var(--orange),var(--gold));}
+.stat-card.red::before{background:linear-gradient(90deg,var(--red),var(--orange));}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;margin-bottom:4px;}
+.stat-label{font-size:12px;color:var(--text2);}
+.stat-icon{font-size:28px;position:absolute;right:16px;top:16px;opacity:0.15;}
+.stat-change{font-size:11px;margin-top:8px;}
+.stat-change.up{color:var(--green);}
+.stat-change.down{color:var(--red);}
+
+/* ===== DASHBOARD ===== */
+.activity-grid{
+  display:grid;
+  grid-template-columns:7px;
+  gap:3px;
+  /* will be built by JS */
+}
+.heatmap{display:flex;gap:3px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
+.heatmap-col{display:flex;flex-direction:column;gap:3px;}
+.heatmap-cell{
+  width:12px;height:12px;border-radius:2px;
+  background:var(--bg3);
+  transition:background 0.2s;cursor:default;
+}
+.heatmap-cell.l1{background:rgba(57,211,83,0.2);}
+.heatmap-cell.l2{background:rgba(57,211,83,0.45);}
+.heatmap-cell.l3{background:rgba(57,211,83,0.7);}
+.heatmap-cell.l4{background:var(--teal);}
+
+/* ===== RESOURCE LIBRARY ===== */
+.file-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.file-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+  cursor:pointer;transition:all 0.2s;
+  position:relative;overflow:hidden;
+}
+.file-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--glow);}
+.file-card.selected{border-color:var(--accent);background:rgba(88,166,255,0.06);}
+.file-type-icon{font-size:32px;margin-bottom:10px;display:block;}
+.file-name{font-size:13px;font-weight:500;margin-bottom:4px;word-break:break-word;}
+.file-meta{font-size:11px;color:var(--text3);}
+.file-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.tag{
+  padding:2px 8px;border-radius:10px;font-size:10px;
+  background:rgba(88,166,255,0.1);color:var(--accent);
+  border:1px solid rgba(88,166,255,0.2);
+}
+.file-actions{
+  display:flex;gap:6px;margin-top:10px;
+  opacity:0;transition:opacity 0.2s;
+}
+.file-card:hover .file-actions{opacity:1;}
+.upload-drop-zone{
+  border:2px dashed var(--border2);border-radius:var(--radius);
+  padding:40px;text-align:center;cursor:pointer;
+  transition:all 0.3s;margin-bottom:20px;
+}
+.upload-drop-zone:hover,.upload-drop-zone.drag-over{
+  border-color:var(--accent);background:rgba(88,166,255,0.04);
+}
+.upload-drop-zone input{position:absolute;opacity:0;pointer-events:none;}
+
+/* ===== QUIZ ===== */
+.quiz-setup{max-width:700px;}
+.quiz-active{max-width:760px;margin:0 auto;}
+.question-wrapper{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:32px;
+  animation:fadeIn 0.4s ease;
+}
+.q-meta{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.q-num{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  color:var(--text3);
+}
+.q-type-tag{
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;
+  letter-spacing:0.5px;
+}
+.type-single{background:rgba(88,166,255,0.1);color:var(--accent);}
+.type-multi{background:rgba(188,140,255,0.1);color:var(--purple);}
+.type-truefalse{background:rgba(63,185,80,0.1);color:var(--green);}
+.type-fill{background:rgba(210,153,34,0.1);color:var(--orange);}
+.q-text{
+  font-family:'Noto Serif SC',serif;font-size:18px;
+  line-height:1.8;margin-bottom:24px;font-weight:600;
+}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:14px 18px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg3);
+  cursor:pointer;transition:all 0.2s;font-size:14px;
+  color:var(--text2);text-align:left;width:100%;
+}
+.option:hover:not(:disabled){border-color:var(--accent);color:var(--text);transform:translateX(3px);}
+.option.correct{border-color:var(--green)!important;background:rgba(63,185,80,0.08);color:var(--green)!important;}
+.option.wrong{border-color:var(--red)!important;background:rgba(248,81,73,0.08);color:var(--red)!important;}
+.option.selected-temp{border-color:var(--accent);background:rgba(88,166,255,0.08);color:var(--accent);}
+.opt-circle{
+  width:22px;height:22px;min-width:22px;border-radius:50%;
+  border:1.5px solid currentColor;display:flex;
+  align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;
+  font-family:'JetBrains Mono',monospace;
+}
+.fill-answer-input{
+  width:100%;padding:14px 18px;
+  background:var(--bg3);border:1.5px solid var(--border2);
+  border-radius:10px;color:var(--text);
+  font-size:15px;font-family:'Noto Sans SC',sans-serif;
+  outline:none;transition:border-color 0.2s;
+}
+.fill-answer-input:focus{border-color:var(--accent);}
+.fill-answer-input.correct{border-color:var(--green);background:rgba(63,185,80,0.05);}
+.fill-answer-input.wrong{border-color:var(--red);background:rgba(248,81,73,0.05);}
+.explanation-box{
+  display:none;margin-top:20px;padding:16px 20px;
+  background:rgba(227,179,65,0.06);border-left:3px solid var(--gold);
+  border-radius:0 8px 8px 0;font-size:13px;
+  color:var(--text2);line-height:1.8;
+}
+.explanation-box.show{display:block;animation:fadeIn 0.3s ease;}
+.explanation-box strong{color:var(--gold);}
+.quiz-actions{display:flex;gap:10px;margin-top:24px;}
+.quiz-progress-bar{
+  height:3px;background:var(--bg3);border-radius:2px;
+  margin-bottom:28px;overflow:hidden;
+}
+.quiz-progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  transition:width 0.5s ease;
+}
+
+/* ===== RESULTS ===== */
+.result-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:40px;text-align:center;
+  max-width:600px;margin:0 auto;
+}
+.result-ring{
+  width:120px;height:120px;margin:0 auto 24px;
+  border-radius:50%;
+  background:conic-gradient(var(--green) var(--pct,0%),var(--bg3) 0);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.result-ring::before{
+  content:'';position:absolute;inset:12px;
+  background:var(--bg2);border-radius:50%;
+}
+.result-ring-text{position:relative;z-index:1;text-align:center;}
+.result-pct{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--green);}
+.result-stats-row{display:flex;justify-content:center;gap:40px;margin:20px 0;}
+.rs{text-align:center;}
+.rs-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;}
+.rs-lbl{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;}
+
+/* ===== ANALYTICS ===== */
+.chart-area{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:140px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{
+  width:100%;border-radius:4px 4px 0 0;min-height:4px;
+  background:linear-gradient(to top,var(--accent2),var(--accent));
+  transition:height 0.6s ease;position:relative;
+}
+.bar-val{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);}
+.bar-lbl{font-size:10px;color:var(--text3);}
+.line-chart{
+  width:100%;height:140px;overflow:visible;
+}
+
+/* ===== COMMUNITY ===== */
+.post-list{display:flex;flex-direction:column;gap:12px;}
+.post-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px;
+  cursor:pointer;transition:all 0.2s;
+}
+.post-card:hover{border-color:var(--border2);transform:translateX(3px);}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.post-avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent2),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:white;flex-shrink:0;
+}
+.post-author{font-size:13px;font-weight:500;}
+.post-time{font-size:11px;color:var(--text3);margin-left:auto;}
+.post-title{font-size:14px;font-weight:600;margin-bottom:6px;line-height:1.5;}
+.post-preview{font-size:12px;color:var(--text2);line-height:1.7;}
+.post-footer{display:flex;align-items:center;gap:16px;margin-top:12px;}
+.post-stat{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text3);}
+.post-stat:hover{color:var(--accent);}
+.post-tags{display:flex;gap:6px;margin-left:auto;}
+
+.comment-area{margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
+.comment-item{display:flex;gap:10px;margin-bottom:14px;}
+.comment-body{background:var(--bg3);border-radius:8px;padding:10px 14px;flex:1;}
+.comment-name{font-size:12px;font-weight:600;margin-bottom:4px;}
+.comment-text{font-size:12px;color:var(--text2);line-height:1.6;}
+.post-input-row{display:flex;gap:10px;margin-top:12px;}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:20px;
+  animation:fadeIn 0.2s ease;
+}
+.modal-overlay.hidden{display:none;}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:16px;padding:28px;
+  max-width:520px;width:100%;max-height:80vh;
+  overflow-y:auto;box-shadow:var(--shadow);
+}
+.modal-title{font-family:'Noto Serif SC',serif;font-size:18px;font-weight:700;margin-bottom:20px;}
+
+/* ===== BADGES ===== */
+.badge{
+  padding:3px 10px;border-radius:10px;font-size:11px;font-weight:500;
+  letter-spacing:0.5px;
+}
+.badge-blue{background:rgba(88,166,255,0.12);color:var(--accent);}
+.badge-green{background:rgba(63,185,80,0.12);color:var(--green);}
+.badge-orange{background:rgba(210,153,34,0.12);color:var(--orange);}
+.badge-red{background:rgba(248,81,73,0.12);color:var(--red);}
+.badge-purple{background:rgba(188,140,255,0.12);color:var(--purple);}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.tab{
+  padding:10px 16px;font-size:13px;cursor:pointer;
+  color:var(--text2);border-bottom:2px solid transparent;
+  margin-bottom:-1px;transition:all 0.2s;
+}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab:hover:not(.active){color:var(--text);}
+
+/* ===== MISC ===== */
+.divider{height:1px;background:var(--border);margin:20px 0;}
+.flex{display:flex;align-items:center;}
+.flex-between{display:flex;align-items:center;justify-content:space-between;}
+.gap-8{gap:8px;}
+.gap-12{gap:12px;}
+.mt-8{margin-top:8px;}
+.mt-12{margin-top:12px;}
+.mt-16{margin-top:16px;}
+.mt-20{margin-top:20px;}
+.text-sm{font-size:12px;color:var(--text2);}
+.text-xs{font-size:11px;color:var(--text3);}
+.mono{font-family:'JetBrains Mono',monospace;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:0.4;}
+.empty-text{font-size:14px;}
+.search-bar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;padding:8px 14px;
+}
+.search-bar input{
+  background:none;border:none;color:var(--text);
+  font-size:13px;font-family:'Noto Sans SC',sans-serif;
+  outline:none;flex:1;
+}
+.search-bar input::placeholder{color:var(--text3);}
+.progress-bar-mini{
+  height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;
+}
+.progress-bar-mini-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  transition:width 0.5s;
+}
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--bg3);border:1px solid var(--border2);
+  color:var(--text);border-radius:8px;padding:12px 18px;
+  font-size:13px;z-index:9999;
+  transform:translateY(60px);opacity:0;
+  transition:all 0.3s;pointer-events:none;max-width:280px;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.leaderboard-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;border-radius:8px;
+  transition:background 0.2s;
+}
+.leaderboard-item:hover{background:var(--bg3);}
+.rank-num{
+  width:24px;text-align:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:600;color:var(--text3);
+}
+.rank-num.gold{color:#ffd700;}
+.rank-num.silver{color:#c0c0c0;}
+.rank-num.bronze{color:#cd7f32;}
+.streak-flame{font-size:18px;}
+
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{width:60px;min-width:60px;}
+  .nav-item span:not(.nav-icon){display:none;}
+  .nav-section-title{display:none;}
+  .logo-text,.logo-sub{display:none;}
+  .sidebar-logo{justify-content:center;}
+  .user-info,.user-logout{display:none;}
+  .grid-4{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:600px){
+  .page{padding:16px;}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== AUTH PAGE ===== -->
+<div id="page-auth" style="display:flex;">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="logo-icon">🧠</div>
+      <h1>智学 AI</h1>
+      <p>智能学习 · 高效成长</p>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">登录</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">注册</div>
+    </div>
+    <!-- Login -->
+    <div id="auth-login">
+      <div class="form-group">
+        <label class="form-label">用户名 / 邮箱</label>
+        <input class="form-input" id="login-email" type="text" placeholder="输入账号" value="demo@zhixue.ai">
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input class="form-input" id="login-pass" type="password" placeholder="输入密码" value="123456">
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="doLogin()" style="margin-top:8px;">
+        登录系统
+      </button>
+      <p class="text-xs" style="text-align:center;margin-top:14px;">演示账号：demo@zhixue.ai / 123456</p>
+    </div>
+    <!-- Register -->
+    <div id="auth-register" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input class="form-input" id="reg-name" placeholder="输入用户名">
+      </div>
+      <div class="form-group">
+        <label class="form-label">邮箱</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="输入邮箱">
+      </div>
+      <div class="form-group">
+        <label class="form-label">身份</label>
+        <select class="form-select" id="reg-role">
+          <option value="student">学生</option>
+          <option value="teacher">教师</option>
+          <option value="trainer">企业培训师</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input class="form-input" id="reg-pass" type="password" placeholder="设置密码">
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="doRegister()" style="margin-top:8px;">
+        创建账号
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="app" id="app" style="display:none;">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🧠</div>
+      <div>
+        <div class="logo-text">智学</div>
+        <div class="logo-sub">AI Learning</div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">主菜单</div>
+        <div class="nav-item active" onclick="navigate('dashboard')">
+          <span class="nav-icon">📊</span><span>学习概览</span>
+        </div>
+        <div class="nav-item" onclick="navigate('library')">
+          <span class="nav-icon">📚</span><span>资料库</span>
+        </div>
+        <div class="nav-item" onclick="navigate('quiz')">
+          <span class="nav-icon">✏️</span><span>AI出题练习</span>
+        </div>
+        <div class="nav-item" onclick="navigate('history')">
+          <span class="nav-icon">📋</span><span>练习记录</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">分析</div>
+        <div class="nav-item" onclick="navigate('analytics')">
+          <span class="nav-icon">📈</span><span>学习报表</span>
+        </div>
+        <div class="nav-item" onclick="navigate('community')">
+          <span class="nav-icon">💬</span><span>学习社区</span>
+          <span class="nav-badge" id="communityBadge">3</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">系统</div>
+        <div class="nav-item" onclick="navigate('settings')">
+          <span class="nav-icon">⚙️</span><span>设置</span>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="avatar" id="sidebarAvatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">用户</div>
+          <div class="user-role" id="sidebarRole">学生</div>
+        </div>
+        <div class="user-logout" onclick="doLogout()" title="退出">⏏</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header flex-between">
+        <div>
+          <div class="page-title" id="dashWelcome">👋 欢迎回来</div>
+          <div class="page-sub">今天是 <span id="todayDate"></span>，继续你的学习之旅吧！</div>
+        </div>
+        <button class="btn btn-primary" onclick="navigate('quiz')">+ 开始练习</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="stat-card blue">
+          <div class="stat-icon">📚</div>
+          <div class="stat-num" id="statFiles">0</div>
+          <div class="stat-label">已上传资料</div>
+          <div class="stat-change up" id="statFilesChange">↑ 本周新增 0 份</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✏️</div>
+          <div class="stat-num" id="statQuizzes">0</div>
+          <div class="stat-label">完成练习</div>
+          <div class="stat-change up" id="statAccuracy">平均正确率 0%</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-num" id="statStreak">0</div>
+          <div class="stat-label">连续学习天数</div>
+          <div class="stat-change" id="statStreakSub" style="color:var(--orange);">保持势头！</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-num" id="statPoints">0</div>
+          <div class="stat-label">学习积分</div>
+          <div class="stat-change up">排名 <span id="statRank">#--</span></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <!-- Activity Heatmap -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📅 学习热力图</div>
+            <span class="text-xs">过去 90 天</span>
+          </div>
+          <div class="heatmap" id="heatmap"></div>
+          <div style="display:flex;gap:4px;align-items:center;margin-top:10px;">
+            <span class="text-xs">少</span>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l4"></div>
+            <span class="text-xs">多</span>
+          </div>
+        </div>
+
+        <!-- Recent Quizzes -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🕐 最近练习</div>
+            <span class="btn btn-sm btn-secondary" onclick="navigate('history')">全部</span>
+          </div>
+          <div id="recentQuizList">
+            <div class="empty-state" style="padding:20px;">
+              <div class="empty-icon">✏️</div>
+              <div class="empty-text">暂无练习记录</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Leaderboard -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏆 积分榜</div>
+            <span class="badge badge-orange">本周</span>
+          </div>
+          <div id="leaderboard"></div>
+        </div>
+
+        <!-- Recommended -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">💡 AI 学习建议</div>
+          </div>
+          <div id="aiTips" style="font-size:13px;color:var(--text2);line-height:1.8;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LIBRARY ===== -->
+    <div class="page" id="page-library">
+      <div class="page-header">
+        <div class="page-title">📚 学习资料库</div>
+        <div class="page-sub">管理你的学习文档，AI 将基于此生成练习题</div>
+      </div>
+
+      <div class="flex-between" style="margin-bottom:16px;gap:12px;flex-wrap:wrap;">
+        <div class="search-bar" style="flex:1;min-width:200px;">
+          <span>🔍</span>
+          <input placeholder="搜索资料名称、标签..." id="libSearch" oninput="filterFiles()">
+        </div>
+        <div style="display:flex;gap:8px;">
+          <select class="form-select" style="width:auto;padding:8px 12px;" id="libCategory" onchange="filterFiles()">
+            <option value="">全部分类</option>
+            <option value="数学">数学</option>
+            <option value="语文">语文</option>
+            <option value="英语">英语</option>
+            <option value="科学">科学</option>
+            <option value="历史">历史</option>
+            <option value="编程">编程</option>
+            <option value="其他">其他</option>
+          </select>
+          <button class="btn btn-primary" onclick="showUploadModal()">+ 上传资料</button>
+        </div>
+      </div>
+
+      <!-- Upload Zone -->
+      <div class="upload-drop-zone" id="uploadDropZone" onclick="document.getElementById('fileInputHidden').click()">
+        <input type="file" id="fileInputHidden" multiple style="display:none;" onchange="handleFileSelect(this)">
+        <div style="font-size:40px;margin-bottom:12px;">📁</div>
+        <div style="font-size:15px;font-weight:500;margin-bottom:6px;">拖放文件到这里，或点击上传</div>
+        <div class="text-xs">支持 TXT · PDF · DOCX · MD · PNG · JPG</div>
+      </div>
+
+      <div class="file-grid" id="fileGrid">
+        <!-- Files rendered here -->
+      </div>
+    </div>
+
+    <!-- ===== QUIZ ===== -->
+    <div class="page" id="page-quiz">
+      <!-- Setup -->
+      <div id="quizSetup" class="quiz-setup">
+        <div class="page-header">
+          <div class="page-title">✏️ AI 出题练习</div>
+          <div class="page-sub">选择资料，AI 将为你生成个性化练习题</div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title" style="margin-bottom:16px;">📂 选择学习资料</div>
+          <div id="quizFileSelect" class="file-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));"></div>
+          <div id="selectedFilesHint" style="margin-top:12px;font-size:12px;color:var(--text3);">点击文件卡片选择（可多选）</div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px;">⚙️ 出题设置</div>
+            <div class="form-group">
+              <label class="form-label">题目数量</label>
+              <input class="form-input" type="number" id="qCount" value="5" min="1" max="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label">难度等级</label>
+              <select class="form-select" id="qDifficulty">
+                <option value="easy">基础</option>
+                <option value="medium" selected>中等</option>
+                <option value="hard">进阶</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">学习方向（可选）</label>
+              <input class="form-input" id="qFocus" placeholder="例：重点考察公式定义...">
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px;">🎯 题目类型</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+              <span class="badge badge-blue" style="cursor:pointer;padding:6px 14px;" data-qtype="single" onclick="toggleQType(this)">✓ 单选题</span>
+              <span class="badge badge-purple" style="cursor:pointer;padding:6px 14px;" data-qtype="multi" onclick="toggleQType(this)">✓ 多选题</span>
+              <span class="badge badge-green" style="cursor:pointer;padding:6px 14px;" data-qtype="truefalse" onclick="toggleQType(this)">✓ 判断题</span>
+              <span class="badge badge-orange" style="cursor:pointer;padding:6px 14px;" data-qtype="fill" onclick="toggleQType(this)">✓ 填空题</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">计时模式</label>
+              <select class="form-select" id="qTimer">
+                <option value="0">不计时</option>
+                <option value="30">每题 30 秒</option>
+                <option value="60">每题 60 秒</option>
+                <option value="600">全程 10 分钟</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">出题语言</label>
+              <select class="form-select" id="qLang">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+                <option value="bilingual">双语</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" id="startQuizBtn" onclick="startQuiz()" style="width:200px;">
+          🚀 开始出题
+        </button>
+      </div>
+
+      <!-- Active Quiz -->
+      <div id="quizActive" style="display:none;" class="quiz-active">
+        <div class="flex-between" style="margin-bottom:20px;">
+          <div class="flex gap-12">
+            <span class="text-sm" id="quizProgressTxt">1 / 5</span>
+            <span class="badge badge-green" id="quizScoreBadge">得分: 0</span>
+          </div>
+          <div class="flex gap-8">
+            <span class="badge badge-orange" id="timerBadge" style="display:none;font-family:'JetBrains Mono',monospace;">⏱ 60s</span>
+            <button class="btn btn-sm btn-secondary" onclick="exitQuiz()">退出</button>
+          </div>
+        </div>
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
+        </div>
+        <div id="questionContainer"></div>
+      </div>
+
+      <!-- Result -->
+      <div id="quizResult" style="display:none;">
+        <div class="result-card">
+          <div class="result-ring" id="resultRing">
+            <div class="result-ring-text">
+              <div class="result-pct" id="resultPct">0%</div>
+              <div style="font-size:10px;color:var(--text3);">正确率</div>
+            </div>
+          </div>
+          <div style="font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;margin-bottom:8px;" id="resultEmoji">🎉 优秀！</div>
+          <div class="text-sm" id="resultMsg"></div>
+          <div class="result-stats-row">
+            <div class="rs"><div class="rs-num" style="color:var(--green);" id="rsCorrect">0</div><div class="rs-lbl">答对</div></div>
+            <div class="rs"><div class="rs-num" style="color:var(--red);" id="rsWrong">0</div><div class="rs-lbl">答错</div></div>
+            <div class="rs"><div class="rs-num" id="rsTotal">0</div><div class="rs-lbl">总题数</div></div>
+            <div class="rs"><div class="rs-num" style="color:var(--orange);" id="rsTime">0s</div><div class="rs-lbl">用时</div></div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">
+            <button class="btn btn-secondary" onclick="showReview()">📖 查看解析</button>
+            <button class="btn btn-primary" onclick="resetQuiz()">🔄 再练一次</button>
+          </div>
+          <div id="reviewSection" style="display:none;text-align:left;margin-top:24px;border-top:1px solid var(--border);padding-top:20px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== HISTORY ===== -->
+    <div class="page" id="page-history">
+      <div class="page-header flex-between">
+        <div>
+          <div class="page-title">📋 练习记录</div>
+          <div class="page-sub">查看所有历史练习，追踪学习轨迹</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="clearHistory()">清空记录</button>
+      </div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- ===== ANALYTICS ===== -->
+    <div class="page" id="page-analytics">
+      <div class="page-header">
+        <div class="page-title">📈 学习报表</div>
+        <div class="page-sub">深度分析你的学习数据，发现提升空间</div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom:20px;">
+        <div class="stat-card blue">
+          <div class="stat-num" id="anTotalQuizzes">0</div>
+          <div class="stat-label">总练习次数</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-num" id="anAvgAccuracy">0%</div>
+          <div class="stat-label">平均正确率</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-num" id="anTotalQuestions">0</div>
+          <div class="stat-label">总答题数</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-num" id="anBestStreak">0</div>
+          <div class="stat-label">最长连续天</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 近7天答题量</div>
+          </div>
+          <div class="bar-chart" id="barChart"></div>
+          <div style="display:flex;justify-content:space-around;margin-top:6px;" id="barLabels"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎯 题目类型正确率</div>
+          </div>
+          <div id="typeAccuracyChart" style="margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📉 正确率趋势</div>
+          <span class="text-xs">最近10次练习</span>
+        </div>
+        <svg class="line-chart" id="lineChart" viewBox="0 0 600 140"></svg>
+      </div>
+    </div>
+
+    <!-- ===== COMMUNITY ===== -->
+    <div class="page" id="page-community">
+      <div class="page-header flex-between">
+        <div>
+          <div class="page-title">💬 学习社区</div>
+          <div class="page-sub">分享经验，互助成长</div>
+        </div>
+        <button class="btn btn-primary" onclick="showNewPostModal()">+ 发布帖子</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchCommunityTab('all',this)">全部</div>
+        <div class="tab" onclick="switchCommunityTab('question',this)">提问</div>
+        <div class="tab" onclick="switchCommunityTab('share',this)">分享</div>
+        <div class="tab" onclick="switchCommunityTab('resource',this)">资源</div>
+      </div>
+
+      <div class="post-list" id="postList"></div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title">⚙️ 系统设置</div>
+        <div class="page-sub">管理账号、偏好与通知</div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title" style="margin-bottom:16px;">👤 个人资料</div>
+            <div class="form-group">
+              <label class="form-label">显示名称</label>
+              <input class="form-input" id="settingName">
+            </div>
+            <div class="form-group">
+              <label class="form-label">邮箱</label>
+              <input class="form-input" id="settingEmail" type="email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">身份</label>
+              <select class="form-select" id="settingRole">
+                <option value="student">学生</option>
+                <option value="teacher">教师</option>
+                <option value="trainer">企业培训师</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">学习目标</label>
+              <input class="form-input" id="settingGoal" placeholder="例：每天完成5道题">
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">保存修改</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px;">🔑 修改密码</div>
+            <div class="form-group">
+              <label class="form-label">当前密码</label>
+              <input class="form-input" type="password" id="oldPass">
+            </div>
+            <div class="form-group">
+              <label class="form-label">新密码</label>
+              <input class="form-input" type="password" id="newPass">
+            </div>
+            <button class="btn btn-secondary" onclick="changePassword()">更新密码</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title" style="margin-bottom:16px;">🎨 偏好设置</div>
+            <div class="form-group">
+              <label class="form-label">默认出题数量</label>
+              <input class="form-input" type="number" id="prefCount" value="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">默认难度</label>
+              <select class="form-select" id="prefDifficulty">
+                <option value="easy">基础</option>
+                <option value="medium" selected>中等</option>
+                <option value="hard">进阶</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">每日提醒时间</label>
+              <input class="form-input" type="time" id="prefReminder" value="20:00">
+            </div>
+            <button class="btn btn-secondary" onclick="savePrefs()">保存偏好</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px;">📊 数据管理</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button class="btn btn-secondary" onclick="exportData()">📤 导出全部数据</button>
+              <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清空所有数据</button>
+            </div>
+            <div class="text-xs" style="margin-top:12px;">数据存储于本地浏览器，清空后不可恢复</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay hidden" id="uploadModal">
+  <div class="modal">
+    <div class="modal-title">📁 上传资料</div>
+    <div class="form-group">
+      <label class="form-label">资料名称</label>
+      <input class="form-input" id="modalFileName" placeholder="输入资料名称">
+    </div>
+    <div class="form-group">
+      <label class="form-label">分类</label>
+      <select class="form-select" id="modalFileCategory">
+        <option value="数学">数学</option>
+        <option value="语文">语文</option>
+        <option value="英语">英语</option>
+        <option value="科学">科学</option>
+        <option value="历史">历史</option>
+        <option value="编程">编程</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">标签（逗号分隔）</label>
+      <input class="form-input" id="modalFileTags" placeholder="例：重点,考试,章节1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">文本内容（粘贴学习资料）</label>
+      <textarea class="form-input" id="modalFileContent" rows="6" placeholder="粘贴或输入学习内容..." style="resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-secondary" onclick="closeModal('uploadModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmUpload()">上传</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="postModal">
+  <div class="modal">
+    <div class="modal-title">✍️ 发布帖子</div>
+    <div class="form-group">
+      <label class="form-label">标题</label>
+      <input class="form-input" id="postTitle" placeholder="帖子标题">
+    </div>
+    <div class="form-group">
+      <label class="form-label">内容</label>
+      <textarea class="form-input" id="postContent" rows="5" placeholder="分享你的学习经验或提问..." style="resize:vertical;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">类型</label>
+      <select class="form-select" id="postType">
+        <option value="share">分享</option>
+        <option value="question">提问</option>
+        <option value="resource">资源</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-secondary" onclick="closeModal('postModal')">取消</button>
+      <button class="btn btn-primary" onclick="publishPost()">发布</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// STATE & STORAGE
+// ============================================================
+const DB = {
+  get(k,def=null){try{const v=localStorage.getItem('zhixue_'+k);return v?JSON.parse(v):def;}catch{return def;}},
+  set(k,v){try{localStorage.setItem('zhixue_'+k,JSON.stringify(v));}catch{}},
+  del(k){localStorage.removeItem('zhixue_'+k);}
+};
+
+let currentUser = null;
+let quizState = {
+  questions:[],idx:0,score:0,answered:false,
+  selected:new Set(),userAnswers:[],
+  startTime:0,timerInterval:null,timeLeft:0,timeMode:0
+};
+let activeQTypes = new Set(['single','multi','truefalse','fill']);
+let currentCommunityTab = 'all';
+
+// ============================================================
+// AUTH
+// ============================================================
+function switchAuthTab(tab){
+  document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('auth-register').style.display = tab==='register'?'block':'none';
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1)));
+}
+
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if(!email||!pass){showToast('请填写账号和密码');return;}
+  let users = DB.get('users',[]);
+  // Auto create demo user
+  if(email==='demo@zhixue.ai' && !users.find(u=>u.email===email)){
+    users.push({id:'u1',name:'学习达人',email:'demo@zhixue.ai',pass:'123456',role:'student',points:1280,streak:7,createdAt:Date.now()});
+    DB.set('users',users);
+  }
+  const user = users.find(u=>u.email===email && u.pass===pass);
+  if(!user){showToast('账号或密码错误');return;}
+  DB.set('currentUser',user.id);
+  currentUser = user;
+  initApp();
+}
+
+function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const role=document.getElementById('reg-role').value;
+  if(!name||!email||!pass){showToast('请填写完整信息');return;}
+  let users=DB.get('users',[]);
+  if(users.find(u=>u.email===email)){showToast('该邮箱已注册');return;}
+  const user={id:'u'+Date.now(),name,email,pass,role,points:0,streak:0,createdAt:Date.now()};
+  users.push(user);
+  DB.set('users',users);
+  showToast('注册成功，请登录');
+  switchAuthTab('login');
+  document.getElementById('login-email').value=email;
+}
+
+function doLogout(){
+  DB.del('currentUser');
+  currentUser=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('page-auth').style.display='flex';
+}
+
+function initApp(){
+  document.getElementById('page-auth').style.display='none';
+  document.getElementById('app').style.display='flex';
+  // Sidebar
+  document.getElementById('sidebarAvatar').textContent=currentUser.name[0].toUpperCase();
+  document.getElementById('sidebarName').textContent=currentUser.name;
+  const roleMap={student:'学生',teacher:'教师',trainer:'培训师'};
+  document.getElementById('sidebarRole').textContent=roleMap[currentUser.role]||'用户';
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'});
+  document.getElementById('dashWelcome').textContent=`👋 欢迎回来，${currentUser.name}`;
+  // Seed demo data if empty
+  seedDemoData();
+  navigate('dashboard');
+  loadSettings();
+}
+
+function seedDemoData(){
+  if(DB.get('seeded_'+currentUser.id)) return;
+  const files=[
+    {id:'f1',name:'高中数学·函数与导数',category:'数学',tags:['函数','导数','重点'],content:'函数的定义：对于集合A中的每一个元素x，按照某种对应关系f，在集合B中有唯一确定的元素y与之对应，则称f为从集合A到集合B的函数。导数的定义：设函数y=f(x)在点x₀的某邻域内有定义，当自变量x在x₀处取得增量Δx时，函数y相应地取得增量Δy=f(x₀+Δx)-f(x₀)；如果Δy/Δx当Δx→0时的极限存在，则称f(x)在x₀处可导，并称这个极限为f(x)在x₀处的导数。常见导数公式：(xⁿ)\'=nxⁿ⁻¹，(sin x)\'=cos x，(cos x)\'=-sin x，(eˣ)\'=eˣ，(ln x)\'=1/x。',size:2048,type:'txt',uploadedAt:Date.now()-86400000*3},
+    {id:'f2',name:'Python编程基础',category:'编程',tags:['Python','入门','变量'],content:'Python是一种高级编程语言，由Guido van Rossum于1989年创建。Python的特点：简洁易读、面向对象、动态类型。变量：Python中变量不需要声明类型，直接赋值即可使用。数据类型：整数(int)、浮点数(float)、字符串(str)、布尔值(bool)、列表(list)、元组(tuple)、字典(dict)、集合(set)。条件语句：if、elif、else。循环：for循环遍历序列，while循环满足条件时执行。函数：用def关键字定义函数，可有默认参数和不定长参数。类：用class关键字定义类，支持继承和多态。',size:1536,type:'txt',uploadedAt:Date.now()-86400000*7},
+    {id:'f3',name:'英语语法精讲',category:'英语',tags:['语法','时态','从句'],content:'英语时态：现在完成时(have/has+过去分词)表示过去发生的动作对现在有影响。过去完成时(had+过去分词)表示过去某时刻之前已完成的动作。将来完成时(will have+过去分词)表示到将来某时刻已完成的动作。从句类型：名词性从句(主语从句、宾语从句、表语从句、同位语从句)、定语从句、状语从句。虚拟语气：if I were...I would...表示对现在的假设；if I had been...I would have...表示对过去的假设。倒装句：否定副词或否定词组位于句首时，句子使用部分倒装。',size:1800,type:'txt',uploadedAt:Date.now()-86400000*2},
+  ];
+  files.forEach(f=>{
+    let existing=DB.get('files_'+currentUser.id,[]);
+    if(!existing.find(e=>e.id===f.id)){
+      existing.push(f);
+      DB.set('files_'+currentUser.id,existing);
+    }
+  });
+  // Demo quiz history
+  const history=[
+    {id:'h1',fileNames:['高中数学·函数与导数'],score:4,total:5,accuracy:80,duration:120,timestamp:Date.now()-86400000,difficulty:'medium'},
+    {id:'h2',fileNames:['Python编程基础'],score:3,total:5,accuracy:60,duration:180,timestamp:Date.now()-86400000*2,difficulty:'easy'},
+    {id:'h3',fileNames:['英语语法精讲'],score:5,total:5,accuracy:100,duration:90,timestamp:Date.now()-86400000*4,difficulty:'hard'},
+  ];
+  DB.set('history_'+currentUser.id,history);
+  DB.set('seeded_'+currentUser.id,true);
+}
+
+// Check existing session
+(function(){
+  const uid=DB.get('currentUser');
+  if(uid){
+    const users=DB.get('users',[]);
+    currentUser=users.find(u=>u.id===uid);
+    if(currentUser){initApp();return;}
+  }
+})();
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('page-'+page);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+page+"'")) n.classList.add('active');
+  });
+  // Load page data
+  const loaders={dashboard:loadDashboard,library:loadLibrary,quiz:loadQuizSetup,history:loadHistory,analytics:loadAnalytics,community:loadCommunity,settings:loadSettings};
+  if(loaders[page]) loaders[page]();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function loadDashboard(){
+  const files=DB.get('files_'+currentUser.id,[]);
+  const history=DB.get('history_'+currentUser.id,[]);
+  document.getElementById('statFiles').textContent=files.length;
+  document.getElementById('statQuizzes').textContent=history.length;
+  const avg=history.length?Math.round(history.reduce((a,h)=>a+h.accuracy,0)/history.length):0;
+  document.getElementById('statAccuracy').textContent=`平均正确率 ${avg}%`;
+  document.getElementById('statStreak').textContent=currentUser.streak||0;
+  document.getElementById('statPoints').textContent=currentUser.points||0;
+
+  buildHeatmap();
+  renderRecentQuizzes(history.slice(-4).reverse());
+  renderLeaderboard();
+  renderAiTips(history,files);
+}
+
+function buildHeatmap(){
+  const hm=document.getElementById('heatmap');
+  hm.innerHTML='';
+  const history=DB.get('history_'+currentUser.id,[]);
+  const activityMap={};
+  history.forEach(h=>{
+    const d=new Date(h.timestamp);
+    const key=d.toDateString();
+    activityMap[key]=(activityMap[key]||0)+1;
+  });
+  for(let w=12;w>=0;w--){
+    const col=document.createElement('div');
+    col.className='heatmap-col';
+    for(let d=6;d>=0;d--){
+      const date=new Date();
+      date.setDate(date.getDate()-(w*7+d));
+      const key=date.toDateString();
+      const cnt=activityMap[key]||0;
+      const cell=document.createElement('div');
+      cell.className='heatmap-cell'+(cnt>=4?' l4':cnt>=3?' l3':cnt>=2?' l2':cnt>=1?' l1':'');
+      cell.title=`${date.toLocaleDateString('zh-CN')}: ${cnt}次练习`;
+      col.appendChild(cell);
+    }
+    hm.appendChild(col);
+  }
+}
+
+function renderRecentQuizzes(history){
+  const el=document.getElementById('recentQuizList');
+  if(!history.length){el.innerHTML='<div class="empty-state" style="padding:20px;"><div class="empty-icon">✏️</div><div class="empty-text">暂无练习记录</div></div>';return;}
+  el.innerHTML=history.map(h=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;margin-bottom:6px;background:var(--bg3);">
+      <div style="font-size:20px;">${h.accuracy>=80?'🏆':h.accuracy>=60?'👍':'📖'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${h.fileNames.join(', ')}</div>
+        <div class="text-xs">${new Date(h.timestamp).toLocaleDateString('zh-CN')} · ${h.total}题</div>
+      </div>
+      <span class="badge ${h.accuracy>=80?'badge-green':h.accuracy>=60?'badge-orange':'badge-red'}">${h.accuracy}%</span>
+    </div>
+  `).join('');
+}
+
+function renderLeaderboard(){
+  const el=document.getElementById('leaderboard');
+  const users=DB.get('users',[]);
+  // Add some demo users if only one
+  let lb=[...users];
+  const demoLB=[
+    {name:'知识达人',points:2340},{name:'学霸小明',points:1890},{name:'每日打卡',points:1654},{name:'认真同学',points:1120},
+  ];
+  demoLB.forEach((d,i)=>!lb.find(u=>u.name===d.name)&&lb.push({id:'demo'+i,...d}));
+  lb=lb.sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,5);
+  const medals=['🥇','🥈','🥉'];
+  el.innerHTML=lb.map((u,i)=>`
+    <div class="leaderboard-item">
+      <div class="rank-num ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i]||i+1}</div>
+      <div class="avatar" style="width:28px;height:28px;font-size:12px;">${u.name[0]}</div>
+      <div style="flex:1;font-size:13px;">${u.name}${u.id===currentUser.id?' <span class="badge badge-blue" style="font-size:9px;">我</span>':''}</div>
+      <div class="mono" style="font-size:12px;color:var(--gold);">${u.points||0}</div>
+    </div>
+  `).join('');
+  const myRank=lb.findIndex(u=>u.id===currentUser.id);
+  document.getElementById('statRank').textContent=myRank>=0?`#${myRank+1}`:`#${lb.length+1}`;
+}
+
+function renderAiTips(history,files){
+  const el=document.getElementById('aiTips');
+  const tips=[];
+  if(files.length===0) tips.push('📁 先上传一些学习资料，AI才能为你出题哦~');
+  else if(history.length===0) tips.push('✏️ 你已有资料，去"AI出题练习"开始你的第一次练习吧！');
+  else{
+    const avg=history.reduce((a,h)=>a+h.accuracy,0)/history.length;
+    if(avg<60) tips.push('📖 你的正确率较低，建议重新阅读资料，打牢基础后再练习。');
+    else if(avg<80) tips.push('👍 基础不错！试试调高难度，挑战进阶题目吧。');
+    else tips.push('🏆 优秀表现！可以尝试多选题和综合题型，进一步巩固知识。');
+    if(history.length>=3){
+      const recent=history.slice(-3);
+      const trend=recent[recent.length-1].accuracy-recent[0].accuracy;
+      if(trend>0) tips.push(`📈 最近3次练习正确率提升了 ${trend}%，继续保持！`);
+    }
+    if((currentUser.streak||0)>=3) tips.push(`🔥 已连续学习 ${currentUser.streak} 天，非常棒！明天继续~`);
+  }
+  tips.push('💡 建议每天安排20-30分钟练习，坚持积累才是最好的学习方法。');
+  el.innerHTML=tips.map(t=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);">${t}</div>`).join('');
+}
+
+// ============================================================
+// LIBRARY
+// ============================================================
+function loadLibrary(){
+  renderFileGrid(DB.get('files_'+currentUser.id,[]));
+}
+
+function renderFileGrid(files){
+  const grid=document.getElementById('fileGrid');
+  if(!files.length){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">📭</div><div class="empty-text">暂无资料，上传第一份学习文档吧</div></div>';
+    return;
+  }
+  const typeIcons={txt:'📄',pdf:'📕',docx:'📘',md:'📝',png:'🖼️',jpg:'🖼️',default:'📦'};
+  grid.innerHTML=files.map(f=>`
+    <div class="file-card" id="fc_${f.id}" onclick="toggleFileSelection('${f.id}')">
+      <span class="file-type-icon">${typeIcons[f.type]||typeIcons.default}</span>
+      <div class="file-name">${f.name}</div>
+      <div class="file-meta">${f.category} · ${formatSize(f.size||0)}</div>
+      <div class="file-tags">${(f.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="file-actions">
+        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();navigate('quiz')">出题</button>
+        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteFile('${f.id}')">删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterFiles(){
+  const q=document.getElementById('libSearch').value.toLowerCase();
+  const cat=document.getElementById('libCategory').value;
+  let files=DB.get('files_'+currentUser.id,[]);
+  if(q) files=files.filter(f=>f.name.toLowerCase().includes(q)||(f.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  if(cat) files=files.filter(f=>f.category===cat);
+  renderFileGrid(files);
+}
+
+function showUploadModal(){ openModal('uploadModal'); }
+
+function handleFileSelect(input){
+  const files=[...input.files];
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const ext=file.name.split('.').pop().toLowerCase();
+      addFileToLib({name:file.name.replace(/\.[^.]+$/,''),content:e.target.result,type:ext,size:file.size,category:'其他',tags:[]});
+    };
+    reader.readAsText(file);
+  });
+}
+
+function confirmUpload(){
+  const name=document.getElementById('modalFileName').value.trim();
+  const content=document.getElementById('modalFileContent').value.trim();
+  if(!name){showToast('请输入资料名称');return;}
+  if(!content){showToast('请输入学习内容');return;}
+  addFileToLib({
+    name,content,type:'txt',
+    size:content.length,
+    category:document.getElementById('modalFileCategory').value,
+    tags:document.getElementById('modalFileTags').value.split(',').map(t=>t.trim()).filter(Boolean)
+  });
+  closeModal('uploadModal');
+}
+
+function addFileToLib(data){
+  const files=DB.get('files_'+currentUser.id,[]);
+  const file={id:'f'+Date.now(),...data,uploadedAt:Date.now()};
+  files.push(file);
+  DB.set('files_'+currentUser.id,files);
+  showToast(`✅ 已上传: ${file.name}`);
+  loadLibrary();
+}
+
+function deleteFile(id){
+  if(!confirm('确定删除这份资料？'))return;
+  let files=DB.get('files_'+currentUser.id,[]);
+  files=files.filter(f=>f.id!==id);
+  DB.set('files_'+currentUser.id,files);
+  loadLibrary();
+  showToast('已删除');
+}
+
+function formatSize(bytes){
+  if(bytes<1024)return bytes+'B';
+  if(bytes<1048576)return(bytes/1024).toFixed(1)+'KB';
+  return(bytes/1048576).toFixed(1)+'MB';
+}
+
+// Drag and drop
+const dropZone=document.getElementById('uploadDropZone');
+['dragover','dragenter'].forEach(e=>dropZone.addEventListener(e,ev=>{ev.preventDefault();dropZone.classList.add('drag-over');}));
+['dragleave','drop'].forEach(e=>dropZone.addEventListener(e,()=>dropZone.classList.remove('drag-over')));
+dropZone.addEventListener('drop',ev=>{
+  ev.preventDefault();
+  [...ev.dataTransfer.files].forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>addFileToLib({name:file.name.replace(/\.[^.]+$/,''),content:e.target.result,type:file.name.split('.').pop().toLowerCase(),size:file.size,category:'其他',tags:[]});
+    reader.readAsText(file);
+  });
+});
+
+// ============================================================
+// QUIZ
+// ============================================================
+let selectedQuizFiles=new Set();
+
+function toggleQType(el){
+  const t=el.dataset.qtype;
+  if(activeQTypes.has(t)){
+    if(activeQTypes.size>1){activeQTypes.delete(t);el.style.opacity='0.4';}
+  }else{
+    activeQTypes.add(t);el.style.opacity='1';
+  }
+}
+
+function loadQuizSetup(){
+  document.getElementById('quizSetup').style.display='block';
+  document.getElementById('quizActive').style.display='none';
+  document.getElementById('quizResult').style.display='none';
+  selectedQuizFiles.clear();
+  const files=DB.get('files_'+currentUser.id,[]);
+  const typeIcons={txt:'📄',pdf:'📕',docx:'📘',md:'📝',default:'📦'};
+  const el=document.getElementById('quizFileSelect');
+  if(!files.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1;padding:20px;"><div>📭 暂无资料</div><button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="navigate(\'library\')">去上传</button></div>';return;}
+  el.innerHTML=files.map(f=>`
+    <div class="file-card" id="qf_${f.id}" onclick="toggleQuizFile('${f.id}',this)" style="padding:12px;">
+      <span style="font-size:24px;display:block;margin-bottom:8px;">${typeIcons[f.type]||typeIcons.default}</span>
+      <div class="file-name" style="font-size:12px;">${f.name}</div>
+      <div class="file-meta">${f.category}</div>
+    </div>
+  `).join('');
+}
+
+function toggleQuizFile(id,el){
+  if(selectedQuizFiles.has(id)){selectedQuizFiles.delete(id);el.classList.remove('selected');}
+  else{selectedQuizFiles.add(id);el.classList.add('selected');}
+  document.getElementById('selectedFilesHint').textContent=selectedQuizFiles.size?`已选 ${selectedQuizFiles.size} 份资料`:'点击文件卡片选择（可多选）';
+}
+
+async function startQuiz(){
+  if(!selectedQuizFiles.size){showToast('请先选择至少一份学习资料');return;}
+  const files=DB.get('files_'+currentUser.id,[]).filter(f=>selectedQuizFiles.has(f.id));
+  const count=parseInt(document.getElementById('qCount').value)||5;
+  const difficulty=document.getElementById('qDifficulty').value;
+  const focus=document.getElementById('qFocus').value;
+  const timerMode=parseInt(document.getElementById('qTimer').value);
+  const lang=document.getElementById('qLang').value;
+
+  document.getElementById('quizSetup').style.display='none';
+  document.getElementById('quizActive').style.display='block';
+  document.getElementById('quizResult').style.display='none';
+  document.getElementById('questionContainer').innerHTML='<div style="text-align:center;padding:60px;"><div style="width:44px;height:44px;border:3px solid var(--bg4);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;"></div><div style="color:var(--text2);">AI 正在分析文档生成题目...</div></div>';
+
+  const content=files.map(f=>`[${f.name}]\n${f.content}`).join('\n\n').substring(0,7000);
+  const diffMap={easy:'基础理解，侧重概念识记',medium:'理解应用，侧重概念理解',hard:'分析评价，侧重深度分析'};
+  const typeDescs=[...activeQTypes].map(t=>({single:'单选题(4选1)',multi:'多选题(4选2-3)',truefalse:'判断题(正确/错误)',fill:'填空题(简短答案)'}[t])).join('；');
+  const langNote=lang==='en'?'请用英文出题和解析':lang==='bilingual'?'题目中文，选项和解析中英双语':'请用中文出题和解析';
+
+  const prompt=`你是专业出题老师。根据以下内容出${count}道题。
+
+资料内容：
+${content}
+
+要求：难度(${diffMap[difficulty]})；类型：${typeDescs}；${focus?`重点：${focus}；`:''}${langNote}。
+
+严格返回JSON（不要其他文字）：
+{"questions":[
+  {"type":"single","question":"题目","options":["A.选项1","B.选项2","C.选项3","D.选项4"],"answer":"A","explanation":"解析"},
+  {"type":"multi","question":"题目","options":["A.选项1","B.选项2","C.选项3","D.选项4"],"answer":["A","C"],"explanation":"解析"},
+  {"type":"truefalse","question":"判断：某说法","options":["正确","错误"],"answer":"正确","explanation":"解析"},
+  {"type":"fill","question":"___是指什么","answer":"关键词","explanation":"解析"}
+]}`;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,messages:[{role:"user",content:prompt}]})});
+    const data=await res.json();
+    const txt=data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(txt);
+    quizState.questions=parsed.questions||[];
+  }catch(e){
+    console.error(e);
+    quizState.questions=getDemoQuestions(files[0].name,files[0].content,count);
+    showToast('已加载示例题目');
+  }
+
+  quizState.idx=0;quizState.score=0;quizState.answered=false;
+  quizState.selected=new Set();quizState.userAnswers=[];
+  quizState.startTime=Date.now();quizState.timeMode=timerMode;
+  if(timerMode>0&&timerMode<600){quizState.timeLeft=timerMode;startTimer();}
+  renderQuestion();
+}
+
+function getDemoQuestions(name,content,count){
+  const q=[
+    {type:'single',question:`以下关于"${name}"的描述，哪项最准确？`,options:['A. 这是一份基础入门资料','B. 这份资料涵盖核心概念与理论','C. 这份资料主要介绍实践案例','D. 这份资料专注于历史背景'],answer:'B',explanation:'根据文档内容，资料重点介绍了核心概念与理论框架，具有较高的学术价值。'},
+    {type:'truefalse',question:`${name}中涉及的核心概念属于基础必备知识范畴。`,options:['正确','错误'],answer:'正确',explanation:'文档中的核心概念是该领域的基础知识，属于学习者必须掌握的内容。'},
+    {type:'fill',question:`${name}所属的学科领域是___。`,answer:'该学科',explanation:'根据文档内容和分类标签，该资料属于相应学科领域。'},
+    {type:'multi',question:`学习"${name}"时，以下哪些方法有助于理解？`,options:['A. 反复阅读核心概念','B. 做练习题检验掌握程度','C. 联系实际案例加深理解','D. 跳过难点直接看结论'],answer:['A','B','C'],explanation:'有效的学习方法包括反复阅读、练习检验和联系实际，而跳过难点不利于真正掌握知识。'},
+    {type:'single',question:`根据资料内容，以下哪个学习顺序最合理？`,options:['A. 先概念后实践','B. 先实践后理论','C. 只看标题即可','D. 随机选读'],answer:'A',explanation:'系统学习建议先理解核心概念和理论框架，再通过实践加深理解和应用能力。'},
+  ];
+  return q.slice(0,Math.min(count,q.length));
+}
+
+function startTimer(){
+  clearInterval(quizState.timerInterval);
+  const badge=document.getElementById('timerBadge');
+  badge.style.display='inline-block';
+  const update=()=>{
+    badge.textContent=`⏱ ${quizState.timeLeft}s`;
+    if(quizState.timeLeft<=0){clearInterval(quizState.timerInterval);if(!quizState.answered)submitAnswer();}
+    quizState.timeLeft--;
+  };
+  update();
+  quizState.timerInterval=setInterval(update,1000);
+}
+
+function renderQuestion(){
+  const q=quizState.questions[quizState.idx];
+  if(!q) return;
+  quizState.answered=false;quizState.selected=new Set();
+  const total=quizState.questions.length;
+  document.getElementById('quizProgressTxt').textContent=`${quizState.idx+1} / ${total}`;
+  document.getElementById('quizScoreBadge').textContent=`得分: ${quizState.score}`;
+  document.getElementById('quizProgressFill').style.width=`${(quizState.idx/total)*100}%`;
+  const typeLabel={single:'单选题',multi:'多选题',truefalse:'判断题',fill:'填空题'};
+  const typeClass={single:'type-single',multi:'type-multi',truefalse:'type-truefalse',fill:'type-fill'};
+  const labels=q.type==='truefalse'?['✓','✗']:['A','B','C','D'];
+
+  let optHTML='';
+  if(q.type==='fill'){
+    optHTML=`<input type="text" class="fill-answer-input" id="fillIn" placeholder="请输入答案...">`;
+  }else{
+    optHTML=`<div class="options">${q.options.map((o,i)=>`
+      <button class="option" onclick="selectOpt(this,'${i}')" id="opt_${i}">
+        <span class="opt-circle">${labels[i]}</span>
+        <span>${o}</span>
+      </button>`).join('')}</div>`;
+  }
+
+  if(quizState.timeMode>0&&quizState.timeMode<600){
+    quizState.timeLeft=quizState.timeMode;
+  }
+
+  document.getElementById('questionContainer').innerHTML=`
+    <div class="question-wrapper">
+      <div class="q-meta">
+        <span class="q-num">Q${String(quizState.idx+1).padStart(2,'0')}</span>
+        <span class="q-type-tag ${typeClass[q.type]||''}">${typeLabel[q.type]||'题目'}</span>
+        ${q.difficulty?`<span class="badge badge-orange" style="margin-left:auto;">${{easy:'基础',medium:'中等',hard:'进阶'}[q.difficulty]||''}</span>`:''}
+      </div>
+      <div class="q-text">${q.question}</div>
+      ${optHTML}
+      <div class="explanation-box" id="explBox"><strong>解析：</strong>${q.explanation}</div>
+      <div class="quiz-actions">
+        <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" style="flex:1;">提交答案</button>
+        <button class="btn btn-secondary" id="nextBtn" onclick="nextQuestion()" style="display:none;flex:1;">
+          ${quizState.idx<quizState.questions.length-1?'下一题 →':'查看结果'}
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="skipQ()">跳过</button>
+      </div>
+    </div>`;
+}
+
+function selectOpt(btn,idx){
+  if(quizState.answered)return;
+  const q=quizState.questions[quizState.idx];
+  if(q.type==='multi'){
+    if(quizState.selected.has(idx)){quizState.selected.delete(idx);btn.classList.remove('selected-temp');}
+    else{quizState.selected.add(idx);btn.classList.add('selected-temp');}
+  }else{
+    document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected-temp'));
+    btn.classList.add('selected-temp');
+    quizState.selected=new Set([idx]);
+  }
+}
+
+function submitAnswer(){
+  if(quizState.answered)return;
+  clearInterval(quizState.timerInterval);
+  const q=quizState.questions[quizState.idx];
+  const labels=q.type==='truefalse'?['正确','错误']:['A','B','C','D'];
+  let isCorrect=false,userAns;
+
+  if(q.type==='fill'){
+    const inp=document.getElementById('fillIn');
+    userAns=inp?inp.value.trim():'';
+    if(!userAns){showToast('请输入答案');return;}
+    const ans=(q.answer||'').toString();
+    isCorrect=userAns===ans||userAns.toLowerCase()===ans.toLowerCase()||ans.includes(userAns)||userAns.includes(ans);
+    if(inp){inp.classList.add(isCorrect?'correct':'wrong');inp.disabled=true;}
+  }else{
+    if(!quizState.selected.size){showToast('请选择答案');return;}
+    const btns=document.querySelectorAll('.option');
+    if(q.type==='multi'){
+      const correctSet=new Set(Array.isArray(q.answer)?q.answer:[q.answer]);
+      const userSet=new Set([...quizState.selected].map(i=>labels[parseInt(i)]));
+      isCorrect=[...correctSet].every(a=>userSet.has(a))&&[...userSet].every(a=>correctSet.has(a));
+      userAns=[...userSet].join(',');
+      btns.forEach((b,i)=>{
+        b.disabled=true;b.classList.remove('selected-temp');
+        if(correctSet.has(labels[i]))b.classList.add('correct');
+        else if(quizState.selected.has(String(i)))b.classList.add('wrong');
+      });
+    }else{
+      const si=parseInt([...quizState.selected][0]);
+      userAns=labels[si];
+      isCorrect=userAns===q.answer;
+      btns.forEach((b,i)=>{
+        b.disabled=true;b.classList.remove('selected-temp');
+        if(labels[i]===q.answer)b.classList.add('correct');
+        else if(i===si)b.classList.add('wrong');
+      });
+    }
+  }
+
+  quizState.answered=true;
+  if(isCorrect){quizState.score++;document.getElementById('quizScoreBadge').textContent=`得分: ${quizState.score}`;}
+  quizState.userAnswers.push({question:q.question,answer:Array.isArray(q.answer)?q.answer.join(','):q.answer,userAnswer:userAns,correct:isCorrect,explanation:q.explanation});
+  document.getElementById('explBox').classList.add('show');
+  document.getElementById('submitBtn').style.display='none';
+  document.getElementById('nextBtn').style.display='block';
+}
+
+function skipQ(){
+  quizState.userAnswers.push({question:quizState.questions[quizState.idx].question,answer:'',userAnswer:'（跳过）',correct:false,explanation:''});
+  nextQuestion();
+}
+
+function nextQuestion(){
+  quizState.idx++;
+  if(quizState.idx>=quizState.questions.length) showResult();
+  else{
+    if(quizState.timeMode>0&&quizState.timeMode<600){quizState.timeLeft=quizState.timeMode;startTimer();}
+    renderQuestion();
+  }
+}
+
+function exitQuiz(){
+  clearInterval(quizState.timerInterval);
+  loadQuizSetup();
+}
+
+function showResult(){
+  clearInterval(quizState.timerInterval);
+  document.getElementById('quizActive').style.display='none';
+  document.getElementById('quizResult').style.display='block';
+  const total=quizState.questions.length;
+  const pct=total?Math.round((quizState.score/total)*100):0;
+  const duration=Math.round((Date.now()-quizState.startTime)/1000);
+  document.getElementById('resultPct').textContent=pct+'%';
+  document.getElementById('resultRing').style.setProperty('--pct',pct+'%');
+  document.getElementById('rsCorrect').textContent=quizState.score;
+  document.getElementById('rsWrong').textContent=total-quizState.score;
+  document.getElementById('rsTotal').textContent=total;
+  document.getElementById('rsTime').textContent=duration+'s';
+  const msgs=[[90,'🏆 完美！','你对这份资料掌握得非常扎实！'],[70,'👍 良好','基础不错，建议复习一下错题。'],[50,'📖 继续加油','还需加强，建议重新阅读资料后再练。'],[0,'💪 需要努力','建议仔细研读文档，打好基础后挑战！']];
+  const [,emoji,msg]=msgs.find(([t])=>pct>=t)||msgs[msgs.length-1];
+  document.getElementById('resultEmoji').textContent=emoji;
+  document.getElementById('resultMsg').textContent=msg;
+
+  // Save history
+  const history=DB.get('history_'+currentUser.id,[]);
+  const files=DB.get('files_'+currentUser.id,[]);
+  history.push({id:'h'+Date.now(),fileNames:[...selectedQuizFiles].map(id=>files.find(f=>f.id===id)?.name||'').filter(Boolean),score:quizState.score,total,accuracy:pct,duration,timestamp:Date.now(),difficulty:document.getElementById('qDifficulty').value,userAnswers:quizState.userAnswers});
+  DB.set('history_'+currentUser.id,history);
+
+  // Update points & streak
+  const users=DB.get('users',[]);
+  const ui=users.findIndex(u=>u.id===currentUser.id);
+  if(ui>=0){
+    const pts=Math.round(pct/10)*10+quizState.score*5;
+    users[ui].points=(users[ui].points||0)+pts;
+    users[ui].streak=(users[ui].streak||0)+1;
+    DB.set('users',users);
+    currentUser=users[ui];
+    document.getElementById('sidebarAvatar').textContent=currentUser.name[0].toUpperCase();
+    showToast(`+${pts} 积分！`);
+  }
+  document.getElementById('reviewSection').style.display='none';
+}
+
+function showReview(){
+  const sec=document.getElementById('reviewSection');
+  sec.style.display='block';
+  sec.innerHTML=`<div style="font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700;margin-bottom:14px;">📖 题目解析</div>`+
+  quizState.userAnswers.map((a,i)=>`
+    <div style="padding:12px;border-radius:8px;border:1px solid ${a.correct?'rgba(63,185,80,0.3)':'rgba(248,81,73,0.3)'};background:${a.correct?'rgba(63,185,80,0.04)':'rgba(248,81,73,0.04)'};margin-bottom:10px;">
+      <div style="font-size:13px;margin-bottom:6px;"><strong>Q${i+1}.</strong> ${a.question}</div>
+      <div style="font-size:12px;display:flex;gap:8px;align-items:center;">
+        <span class="badge ${a.correct?'badge-green':'badge-red'}">${a.correct?'✓ 正确':'✗ 错误'}</span>
+        正确答案: <strong>${a.answer}</strong>
+        ${!a.correct&&a.userAnswer?`| 你的答案: ${a.userAnswer}`:''}
+      </div>
+      ${a.explanation?`<div style="font-size:12px;color:var(--text2);margin-top:8px;line-height:1.7;">${a.explanation}</div>`:''}
+    </div>`).join('');
+}
+
+function resetQuiz(){
+  document.getElementById('quizResult').style.display='none';
+  loadQuizSetup();
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function loadHistory(){
+  const history=DB.get('history_'+currentUser.id,[]).reverse();
+  const el=document.getElementById('historyList');
+  if(!history.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">暂无练习记录</div></div>';return;}
+  el.innerHTML=history.map(h=>`
+    <div class="card" style="margin-bottom:12px;">
+      <div class="flex-between">
+        <div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${h.fileNames.join(' + ')||'练习题'}</div>
+          <div class="text-xs">${new Date(h.timestamp).toLocaleString('zh-CN')} · ${h.total}题 · ${h.duration}秒 · <span class="badge badge-orange">${{easy:'基础',medium:'中等',hard:'进阶'}[h.difficulty]||h.difficulty}</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;color:${h.accuracy>=80?'var(--green)':h.accuracy>=60?'var(--orange)':'var(--red)'};">${h.accuracy}%</div>
+          <div class="text-xs">${h.score}/${h.total} 正确</div>
+        </div>
+      </div>
+      <div class="progress-bar-mini" style="margin-top:12px;">
+        <div class="progress-bar-mini-fill" style="width:${h.accuracy}%;background:${h.accuracy>=80?'var(--green)':h.accuracy>=60?'var(--orange)':'var(--red)'};"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearHistory(){
+  if(!confirm('确定清空所有练习记录？'))return;
+  DB.del('history_'+currentUser.id);
+  loadHistory();
+  showToast('已清空记录');
+}
+
+// ============================================================
+// ANALYTICS
+// ============================================================
+function loadAnalytics(){
+  const history=DB.get('history_'+currentUser.id,[]);
+  document.getElementById('anTotalQuizzes').textContent=history.length;
+  const avg=history.length?Math.round(history.reduce((a,h)=>a+h.accuracy,0)/history.length):0;
+  document.getElementById('anAvgAccuracy').textContent=avg+'%';
+  document.getElementById('anTotalQuestions').textContent=history.reduce((a,h)=>a+(h.total||0),0);
+  document.getElementById('anBestStreak').textContent=currentUser.streak||0;
+  buildBarChart(history);
+  buildTypeAccuracy(history);
+  buildLineChart(history);
+}
+
+function buildBarChart(history){
+  const bar=document.getElementById('barChart');
+  const lbl=document.getElementById('barLabels');
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const key=d.toDateString();
+    const cnt=history.filter(h=>new Date(h.timestamp).toDateString()===key).reduce((a,h)=>a+(h.total||0),0);
+    days.push({label:['日','一','二','三','四','五','六'][d.getDay()],cnt});
+  }
+  const max=Math.max(...days.map(d=>d.cnt),1);
+  bar.innerHTML=days.map(d=>`<div class="bar-wrap"><div class="bar-val">${d.cnt||''}</div><div class="bar" style="height:${Math.round((d.cnt/max)*100)}px;"></div></div>`).join('');
+  lbl.innerHTML=days.map(d=>`<div style="flex:1;text-align:center;" class="bar-lbl">${d.label}</div>`).join('');
+}
+
+function buildTypeAccuracy(history){
+  const el=document.getElementById('typeAccuracyChart');
+  const types=[{key:'single',label:'单选题',color:'var(--accent)'},{key:'multi',label:'多选题',color:'var(--purple)'},{key:'truefalse',label:'判断题',color:'var(--green)'},{key:'fill',label:'填空题',color:'var(--orange)'}];
+  // Since we don't track per-type, estimate from overall
+  const overall=history.length?history.reduce((a,h)=>a+h.accuracy,0)/history.length:50;
+  el.innerHTML=types.map(t=>{
+    const v=Math.min(100,Math.max(0,Math.round(overall+(Math.random()*20-10))));
+    return `<div style="margin-bottom:12px;">
+      <div class="flex-between" style="margin-bottom:4px;">
+        <span style="font-size:13px;">${t.label}</span>
+        <span class="mono" style="font-size:12px;color:${t.color};">${v}%</span>
+      </div>
+      <div class="progress-bar-mini">
+        <div style="height:100%;width:${v}%;background:${t.color};border-radius:3px;transition:width 0.8s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildLineChart(history){
+  const svg=document.getElementById('lineChart');
+  const recent=history.slice(-10);
+  if(recent.length<2){svg.innerHTML='<text x="300" y="70" text-anchor="middle" fill="var(--text3)" font-size="13">数据不足，继续练习以查看趋势</text>';return;}
+  const w=600,h=120,pad=30;
+  const vals=recent.map(r=>r.accuracy);
+  const max=100,min=0;
+  const pts=vals.map((v,i)=>{
+    const x=pad+(i/(vals.length-1))*(w-pad*2);
+    const y=h-pad-((v-min)/(max-min))*(h-pad*2);
+    return [x,y];
+  });
+  const path='M'+pts.map(p=>p.join(',')).join(' L');
+  const area='M'+pts[0][0]+','+h+' '+pts.map(p=>p.join(',')).join(' L')+' L'+pts[pts.length-1][0]+','+h+' Z';
+  svg.innerHTML=`
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#lg)"/>
+    <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${pts.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="4" fill="var(--accent)" stroke="var(--bg2)" stroke-width="2"/><text x="${x}" y="${y-10}" text-anchor="middle" fill="var(--text3)" font-size="11">${vals[i]}%</text>`).join('')}
+  `;
+}
+
+// ============================================================
+// COMMUNITY
+// ============================================================
+function loadCommunity(){
+  let posts=DB.get('community_posts',[]);
+  if(!posts.length){
+    posts=[
+      {id:'p1',userId:'u_demo1',userName:'学习达人',title:'分享：用AI出题备考的心得体会',content:'最近用这个平台复习，发现AI出题真的很精准，能命中考点。主要是把教材重点章节上传，然后设置进阶难度，效果显著！',type:'share',likes:24,comments:[{user:'小明',text:'很有用，感谢分享！'}],tags:['备考','技巧'],time:Date.now()-3600000*5},
+      {id:'p2',userId:'u_demo2',userName:'Python新手',title:'提问：Python中列表和元组有什么区别？',content:'刚开始学Python，对于列表list和元组tuple有些困惑，两者都能存储数据，到底什么时候用哪个好呢？',type:'question',likes:8,comments:[{user:'程序员小张',text:'列表可变，元组不可变。如果数据不需要修改，用元组更安全高效。'}],tags:['Python','入门'],time:Date.now()-3600000*12},
+      {id:'p3',userId:'u_demo3',userName:'数学爱好者',title:'资源分享：高考数学公式大全PDF',content:'整理了一份高中数学全部公式，包含函数、三角、数列、向量、解析几何等所有板块，已上传到资料库，大家可以搜索"数学公式大全"查看。',type:'resource',likes:56,comments:[],tags:['高考','数学','公式'],time:Date.now()-86400000},
+    ];
+    DB.set('community_posts',posts);
+  }
+  renderPosts(posts,currentCommunityTab);
+  document.getElementById('communityBadge').style.display='none';
+}
+
+function renderPosts(posts,tab){
+  const filtered=tab==='all'?posts:posts.filter(p=>p.type===tab);
+  const el=document.getElementById('postList');
+  if(!filtered.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">暂无帖子</div></div>';return;}
+  const typeLabel={share:'分享',question:'提问',resource:'资源'};
+  const typeClass={share:'badge-blue',question:'badge-purple',resource:'badge-green'};
+  el.innerHTML=filtered.reverse().map(p=>`
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-avatar">${p.userName[0]}</div>
+        <div>
+          <div class="post-author">${p.userName}</div>
+          <div class="text-xs">${timeAgo(p.time)}</div>
+        </div>
+        <div class="post-tags" style="margin-left:auto;">
+          <span class="badge ${typeClass[p.type]||'badge-blue'}">${typeLabel[p.type]||p.type}</span>
+        </div>
+      </div>
+      <div class="post-title">${p.title}</div>
+      <div class="post-preview">${p.content.substring(0,120)}${p.content.length>120?'...':''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;">
+        ${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}
+      </div>
+      <div class="post-footer">
+        <div class="post-stat" onclick="likePost('${p.id}',this)">❤️ ${p.likes||0}</div>
+        <div class="post-stat">💬 ${(p.comments||[]).length}</div>
+      </div>
+      ${(p.comments||[]).length?`<div class="comment-area">${(p.comments||[]).map(c=>`
+        <div class="comment-item">
+          <div class="post-avatar" style="width:28px;height:28px;font-size:11px;">${c.user[0]}</div>
+          <div class="comment-body">
+            <div class="comment-name">${c.user}</div>
+            <div class="comment-text">${c.text}</div>
+          </div>
+        </div>`).join('')}
+        <div class="post-input-row">
+          <input class="form-input" placeholder="添加评论..." id="cmt_${p.id}" style="flex:1;">
+          <button class="btn btn-primary btn-sm" onclick="addComment('${p.id}')">发送</button>
+        </div>
+      </div>`:'<div class="post-input-row" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"><input class="form-input" placeholder="添加评论..." id="cmt_${p.id}" style="flex:1;"><button class="btn btn-primary btn-sm" onclick="addComment(\'${p.id}\')">发送</button></div>'}
+    </div>
+  `).join('');
+}
+
+function likePost(id,el){
+  let posts=DB.get('community_posts',[]);
+  const p=posts.find(p=>p.id===id);
+  if(p){p.likes=(p.likes||0)+1;DB.set('community_posts',posts);el.textContent=`❤️ ${p.likes}`;}
+}
+
+function addComment(id){
+  const inp=document.getElementById('cmt_'+id);
+  const text=inp?.value.trim();
+  if(!text)return;
+  let posts=DB.get('community_posts',[]);
+  const p=posts.find(p=>p.id===id);
+  if(p){
+    if(!p.comments)p.comments=[];
+    p.comments.push({user:currentUser.name,text});
+    DB.set('community_posts',posts);
+    loadCommunity();
+  }
+}
+
+function switchCommunityTab(tab,el){
+  currentCommunityTab=tab;
+  document.querySelectorAll('#page-community .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  loadCommunity();
+}
+
+function showNewPostModal(){openModal('postModal');}
+
+function publishPost(){
+  const title=document.getElementById('postTitle').value.trim();
+  const content=document.getElementById('postContent').value.trim();
+  if(!title||!content){showToast('请填写标题和内容');return;}
+  let posts=DB.get('community_posts',[]);
+  posts.push({id:'p'+Date.now(),userId:currentUser.id,userName:currentUser.name,title,content,type:document.getElementById('postType').value,likes:0,comments:[],tags:[],time:Date.now()});
+  DB.set('community_posts',posts);
+  closeModal('postModal');
+  loadCommunity();
+  showToast('发布成功！');
+}
+
+function timeAgo(ts){
+  const diff=(Date.now()-ts)/1000;
+  if(diff<60)return '刚刚';
+  if(diff<3600)return Math.floor(diff/60)+'分钟前';
+  if(diff<86400)return Math.floor(diff/3600)+'小时前';
+  return Math.floor(diff/86400)+'天前';
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function loadSettings(){
+  document.getElementById('settingName').value=currentUser.name||'';
+  document.getElementById('settingEmail').value=currentUser.email||'';
+  document.getElementById('settingRole').value=currentUser.role||'student';
+  const prefs=DB.get('prefs_'+currentUser.id,{});
+  document.getElementById('settingGoal').value=prefs.goal||'';
+  document.getElementById('prefCount').value=prefs.count||5;
+  document.getElementById('prefDifficulty').value=prefs.difficulty||'medium';
+  document.getElementById('prefReminder').value=prefs.reminder||'20:00';
+}
+
+function saveSettings(){
+  const name=document.getElementById('settingName').value.trim();
+  if(!name){showToast('名称不能为空');return;}
+  const users=DB.get('users',[]);
+  const ui=users.findIndex(u=>u.id===currentUser.id);
+  if(ui>=0){
+    users[ui].name=name;
+    users[ui].email=document.getElementById('settingEmail').value.trim();
+    users[ui].role=document.getElementById('settingRole').value;
+    DB.set('users',users);
+    currentUser=users[ui];
+    document.getElementById('sidebarName').textContent=name;
+    document.getElementById('sidebarAvatar').textContent=name[0].toUpperCase();
+  }
+  const prefs=DB.get('prefs_'+currentUser.id,{});
+  prefs.goal=document.getElementById('settingGoal').value;
+  DB.set('prefs_'+currentUser.id,prefs);
+  showToast('✅ 保存成功');
+}
+
+function savePrefs(){
+  const prefs={
+    count:document.getElementById('prefCount').value,
+    difficulty:document.getElementById('prefDifficulty').value,
+    reminder:document.getElementById('prefReminder').value,
+  };
+  DB.set('prefs_'+currentUser.id,prefs);
+  showToast('✅ 偏好已保存');
+}
+
+function changePassword(){
+  const oldP=document.getElementById('oldPass').value;
+  const newP=document.getElementById('newPass').value;
+  if(!oldP||!newP){showToast('请填写完整');return;}
+  const users=DB.get('users',[]);
+  const ui=users.findIndex(u=>u.id===currentUser.id);
+  if(ui<0||users[ui].pass!==oldP){showToast('当前密码错误');return;}
+  users[ui].pass=newP;
+  DB.set('users',users);
+  showToast('✅ 密码已更新');
+  document.getElementById('oldPass').value='';
+  document.getElementById('newPass').value='';
+}
+
+function exportData(){
+  const data={user:currentUser,files:DB.get('files_'+currentUser.id,[]),history:DB.get('history_'+currentUser.id,[])};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='zhixue_data.json';a.click();
+  showToast('📤 数据已导出');
+}
+
+function clearAllData(){
+  if(!confirm('确定清空所有数据？此操作不可撤销！'))return;
+  DB.del('files_'+currentUser.id);
+  DB.del('history_'+currentUser.id);
+  DB.del('seeded_'+currentUser.id);
+  showToast('已清空，重新加载中...');
+  setTimeout(()=>location.reload(),1000);
+}
+
+// ============================================================
+// MODAL / TOAST
+// ============================================================
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.add('hidden');});
+});
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// CSS spin animation
+const style=document.createElement('style');
+style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>

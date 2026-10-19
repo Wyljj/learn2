@@ -1,0 +1,9 @@
+{
+  "name": "zhixue-employee-training",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "资料驱动的职工岗位培训与真实学习评价工具",
+  "engines": { "node": ">=22" },
+  "scripts": { "start": "node server.mjs", "test": "node --test", "check": "node --check server.mjs && node --check lib/core.mjs && node --check public/app.js" }
+}
